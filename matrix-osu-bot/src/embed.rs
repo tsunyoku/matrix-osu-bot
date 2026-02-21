@@ -67,7 +67,7 @@ impl EmbedBuilder {
 
                   @for (i, (name, value)) in self.fields.iter().enumerate() {
                       strong { (name) ":" } " " (value)
-                      @if i < self.fields.len() - 1 { " · " }
+                      @if i < self.fields.len() - 1 { br; }
                   }
 
                   @if let Some(url) = &self.url {
