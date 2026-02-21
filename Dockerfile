@@ -27,8 +27,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libsqlite3-0 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd --system --no-create-home --shell /usr/sbin/nologin botuser
-
 VOLUME ["/data"]
 ENV DATA_DIRECTORY=/data
 
@@ -36,5 +34,4 @@ ENV RUST_LOG=matrix_osu_bot=info,matrix_sdk=warn
 
 COPY --from=builder /app/target/release/matrix-osu-bot /usr/local/bin/matrix-osu-bot
 
-USER botuser
 ENTRYPOINT ["matrix-osu-bot"]
