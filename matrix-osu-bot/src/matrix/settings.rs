@@ -1,8 +1,8 @@
+use std::env;
 use std::path::PathBuf;
-use config::{Config, ConfigError, Environment};
-use serde::Deserialize;
+use crate::error::Result;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub(crate) struct MatrixSettings {
     pub data_directory: PathBuf,
 
@@ -18,12 +18,26 @@ pub(crate) struct MatrixSettings {
 }
 
 impl MatrixSettings {
-    pub fn new() -> Result<Self, ConfigError> {
-        let config = Config::builder()
-            .add_source(Environment::default())
-            .build()?;
+    pub fn new() -> Result<Self> {
+        let data_directory_env = env::var("DATA_DIRECTORY")?;
+        let data_directory = PathBuf::from(data_directory_env);
 
-        config.try_deserialize()
+        let homeserver = env::var("HOMESERVER")?;
+        let database_passphrase = env::var("DATABASE_PASSPHRASE")?;
+
+        let username = env::var("USERNAME")?;
+        let password = env::var("PASSWORD")?;
+
+        let admin_user_id = env::var("ADMIN_USER_ID")?;
+
+        Ok(Self {
+            data_directory,
+            homeserver,
+            database_passphrase,
+            username,
+            password,
+            admin_user_id,
+        })
     }
 
     pub fn session_file(&self) -> PathBuf {

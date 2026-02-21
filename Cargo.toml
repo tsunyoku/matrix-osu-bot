@@ -4,7 +4,6 @@ members = ["osu-lib", "matrix-osu-bot"]
 
 [workspace.dependencies]
 tokio = { version = "1.49.0", features = ["full"] }
-config = "0.15.19"
 thiserror = "2.0.18"
 
 [profile.release]

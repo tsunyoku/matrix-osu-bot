@@ -1,4 +1,3 @@
-use config::ConfigError;
 use matrix_sdk::ClientBuildError;
 use thiserror::Error;
 use tokio::io;
@@ -7,9 +6,6 @@ pub type Result<T, E = ApplicationError> = std::result::Result<T, E>;
 
 #[derive(Error, Debug)]
 pub enum ApplicationError {
-    #[error("failed to parse config")]
-    ConfigError(#[from] ConfigError),
-
     #[error("failed on file operation")]
     FileError(#[from] io::Error),
 
@@ -24,4 +20,7 @@ pub enum ApplicationError {
 
     #[error("invalid Matrix user ID")]
     UserIdError(#[from] matrix_sdk::ruma::IdParseError),
+
+    #[error("error retrieving environment variable")]
+    EnvironmentVariableError(#[from] std::env::VarError),
 }

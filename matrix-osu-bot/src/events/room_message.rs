@@ -4,7 +4,7 @@ use matrix_sdk::ruma::OwnedUserId;
 use matrix_sdk::ruma::events::room::message::{MessageType, OriginalSyncRoomMessageEvent, RoomMessageEventContent};
 use tracing::{debug, info, warn};
 use crate::error::Result;
-use crate::matrix::verification::{handle_verification_request, PendingVerification};
+use crate::matrix::verification::PendingVerification;
 
 pub(crate) async fn on_room_message(
     event: OriginalSyncRoomMessageEvent,
