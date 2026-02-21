@@ -2,7 +2,7 @@ use matrix_sdk::ClientBuildError;
 use thiserror::Error;
 use tokio::io;
 
-pub type Result<T, E = ApplicationError> = std::result::Result<T, E>;
+pub type ApplicationResult<T, E = ApplicationError> = std::result::Result<T, E>;
 
 #[derive(Error, Debug)]
 pub enum ApplicationError {

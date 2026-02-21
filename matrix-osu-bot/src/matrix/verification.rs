@@ -6,7 +6,7 @@ use matrix_sdk::ruma::events::room::message::RoomMessageEventContent;
 use matrix_sdk::stream::StreamExt;
 use tokio::sync::oneshot;
 use tracing::{error, info, warn};
-use crate::error::Result;
+use crate::error::ApplicationResult;
 
 /// Shared between the verification handler and the room message handler.
 /// Holds the sender half of a oneshot channel that the message handler fires
@@ -18,7 +18,7 @@ pub(crate) async fn handle_verification_request(
     client: Client,
     admin_user_id: OwnedUserId,
     pending: PendingVerification,
-) -> Result<()> {
+) -> ApplicationResult<()> {
     request.accept().await?;
 
     let mut stream = request.changes();
@@ -46,7 +46,7 @@ async fn sas_verification_handler(
     client: Client,
     admin_user_id: OwnedUserId,
     pending: PendingVerification,
-) -> Result<()> {
+) -> ApplicationResult<()> {
     sas.accept().await?;
 
     let mut stream = sas.changes();

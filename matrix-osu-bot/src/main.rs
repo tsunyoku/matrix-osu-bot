@@ -5,10 +5,9 @@ use matrix_sdk::{Client, ClientBuildError, LoopCtrl};
 use matrix_sdk::config::SyncSettings;
 use matrix_sdk::ruma::UserId;
 use matrix_sdk::ruma::api::client::filter::FilterDefinition;
-use matrix_sdk::ruma::events::key::verification::request::ToDeviceKeyVerificationRequestEvent;
 use tokio::fs;
 use tracing::{info, warn};
-use crate::error::Result;
+use crate::error::ApplicationResult;
 use crate::matrix::session::FullSession;
 use crate::matrix::settings::MatrixSettings;
 use crate::matrix::verification::PendingVerification;
@@ -18,7 +17,7 @@ mod error;
 mod events;
 
 #[tokio::main(flavor = "current_thread")]
-async fn main() -> Result<()> {
+async fn main() -> ApplicationResult<()> {
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .init();
@@ -66,7 +65,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn sync(client: &Client, initial_sync_token: Option<String>, session_file: &Path) -> Result<SyncSettings> {
+async fn sync(client: &Client, initial_sync_token: Option<String>, session_file: &Path) -> ApplicationResult<SyncSettings> {
     let filter = FilterDefinition::with_lazy_loading();
 
     let mut sync_settings = SyncSettings::default()
@@ -94,7 +93,7 @@ async fn sync(client: &Client, initial_sync_token: Option<String>, session_file:
     Ok(sync_settings)
 }
 
-async fn persist_sync_token(session_file: &Path, sync_token: String) -> Result<()> {
+async fn persist_sync_token(session_file: &Path, sync_token: String) -> ApplicationResult<()> {
     let serialized_session = fs::read_to_string(session_file).await?;
 
     let mut full_session: FullSession = serde_json::from_str(&serialized_session)?;
@@ -106,7 +105,7 @@ async fn persist_sync_token(session_file: &Path, sync_token: String) -> Result<(
     Ok(())
 }
 
-async fn restore_session(matrix_settings: &MatrixSettings) -> Result<(Client, Option<String>)> {
+async fn restore_session(matrix_settings: &MatrixSettings) -> ApplicationResult<(Client, Option<String>)> {
     let serialised_session = fs::read_to_string(matrix_settings.session_file()).await?;
 
     let FullSession { user_session, sync_token } =
@@ -119,7 +118,7 @@ async fn restore_session(matrix_settings: &MatrixSettings) -> Result<(Client, Op
     Ok((client, sync_token))
 }
 
-async fn login(matrix_settings: &MatrixSettings) -> Result<Client> {
+async fn login(matrix_settings: &MatrixSettings) -> ApplicationResult<Client> {
     let client = build_client(matrix_settings).await?;
 
     let matrix_auth = client.matrix_auth();
@@ -146,7 +145,7 @@ async fn login(matrix_settings: &MatrixSettings) -> Result<Client> {
     Ok(client)
 }
 
-async fn build_client(matrix_settings: &MatrixSettings) -> Result<Client, ClientBuildError> {
+async fn build_client(matrix_settings: &MatrixSettings) -> ApplicationResult<Client, ClientBuildError> {
     Client::builder()
         .homeserver_url(&matrix_settings.homeserver)
         .sqlite_store(matrix_settings.database_directory(), Some(&matrix_settings.database_passphrase))

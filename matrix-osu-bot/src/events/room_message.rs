@@ -1,18 +1,17 @@
-use matrix_sdk::{Client, Room, RoomState};
+use matrix_sdk::{Room, RoomState};
 use matrix_sdk::event_handler::Ctx;
 use matrix_sdk::ruma::OwnedUserId;
 use matrix_sdk::ruma::events::room::message::{MessageType, OriginalSyncRoomMessageEvent, RoomMessageEventContent};
 use tracing::{debug, info, warn};
-use crate::error::Result;
+use crate::error::ApplicationResult;
 use crate::matrix::verification::PendingVerification;
 
 pub(crate) async fn on_room_message(
     event: OriginalSyncRoomMessageEvent,
     room: Room,
-    client: Client,
     Ctx(pending_verification): Ctx<PendingVerification>,
     Ctx(admin_user_id): Ctx<OwnedUserId>,
-) -> Result<()> {
+) -> ApplicationResult<()> {
     if room.state() != RoomState::Joined {
         return Ok(());
     }

@@ -1,6 +1,6 @@
 use std::env;
 use std::path::PathBuf;
-use crate::error::Result;
+use crate::error::ApplicationResult;
 
 #[derive(Debug)]
 pub(crate) struct MatrixSettings {
@@ -18,7 +18,7 @@ pub(crate) struct MatrixSettings {
 }
 
 impl MatrixSettings {
-    pub fn new() -> Result<Self> {
+    pub fn new() -> ApplicationResult<Self> {
         let data_directory_env = env::var("DATA_DIRECTORY")?;
         let data_directory = PathBuf::from(data_directory_env);
 
