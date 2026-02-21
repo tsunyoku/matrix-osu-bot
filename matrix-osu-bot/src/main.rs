@@ -46,7 +46,7 @@ async fn main() -> Result<()> {
     client.add_event_handler_context(admin_user_id);
 
     client.add_event_handler(events::room_message::on_room_message);
-    client.add_event_handler_context(events::verification::on_device_key_verification_request);
+    client.add_event_handler(events::verification::on_device_key_verification_request);
 
     let sync_settings = sync(&client, sync_token, session_file).await?;
 
