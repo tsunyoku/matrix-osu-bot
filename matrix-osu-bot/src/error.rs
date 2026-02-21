@@ -1,6 +1,7 @@
 use matrix_sdk::ClientBuildError;
 use thiserror::Error;
 use tokio::io;
+use osu_lib::OsuError;
 
 pub type ApplicationResult<T, E = ApplicationError> = std::result::Result<T, E>;
 
@@ -23,4 +24,10 @@ pub enum ApplicationError {
 
     #[error("error retrieving environment variable")]
     EnvironmentVariableError(#[from] std::env::VarError),
+
+    #[error("error parsing integer")]
+    ParseIntError(#[from] std::num::ParseIntError),
+
+    #[error("osu! error")]
+    OsuError(#[from] OsuError),
 }
