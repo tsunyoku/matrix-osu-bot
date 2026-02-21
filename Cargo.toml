@@ -1,0 +1,17 @@
+[workspace]
+resolver = "3"
+members = ["osu-lib", "matrix-osu-bot"]
+
+[workspace.dependencies]
+tokio = { version = "1.49.0", features = ["full"] }
+config = "0.15.19"
+thiserror = "2.0.18"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "debuginfo"
+
+# https://nnethercote.github.io/perf-book/build-configuration.html#disable-debug-info-generation
+[profile.dev]
+debug = false
