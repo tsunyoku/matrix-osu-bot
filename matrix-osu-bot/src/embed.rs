@@ -43,8 +43,6 @@ impl EmbedBuilder {
     }
 
     pub fn build(&self) -> RoomMessageEventContent {
-        let html = self.to_html();
-
         RoomMessageEventContent::notice_html(self.to_plain(), self.to_html())
     }
 

@@ -1,7 +1,7 @@
 use matrix_sdk::{Room, RoomState};
 use matrix_sdk::event_handler::Ctx;
 use matrix_sdk::ruma::OwnedUserId;
-use matrix_sdk::ruma::events::room::message::{MessageType, OriginalSyncRoomMessageEvent, RoomMessageEventContent};
+use matrix_sdk::ruma::events::room::message::{MessageType, OriginalSyncRoomMessageEvent};
 use tracing::{debug, info, warn};
 use crate::embed::EmbedBuilder;
 use crate::error::ApplicationResult;
