@@ -3,7 +3,7 @@ resolver = "3"
 members = ["osu-lib", "matrix-osu-bot"]
 
 [workspace.dependencies]
-tokio = { version = "1.49.0", features = ["full"] }
+tokio = { version = "1.49.0", default-features = false, features = ["macros", "rt", "net", "fs"] }
 thiserror = "2.0.18"
 
 [profile.release]
