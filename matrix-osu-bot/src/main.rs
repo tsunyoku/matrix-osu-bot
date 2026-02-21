@@ -1,13 +1,17 @@
 use std::path::Path;
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use matrix_sdk::{Client, ClientBuildError, LoopCtrl};
 use matrix_sdk::config::SyncSettings;
+use matrix_sdk::ruma::UserId;
 use matrix_sdk::ruma::api::client::filter::FilterDefinition;
+use matrix_sdk::ruma::events::key::verification::request::ToDeviceKeyVerificationRequestEvent;
 use tokio::fs;
 use tracing::{info, warn};
 use crate::error::Result;
 use crate::matrix::session::FullSession;
 use crate::matrix::settings::MatrixSettings;
+use crate::matrix::verification::PendingVerification;
 
 mod matrix;
 mod error;
@@ -35,9 +39,16 @@ async fn main() -> Result<()> {
         (login(&matrix_settings).await?, None)
     };
 
-    let sync_settings = sync(&client, sync_token, session_file).await?;
+    let admin_user_id = UserId::parse(&matrix_settings.admin_user_id)?;
+    let pending_verification: PendingVerification = Arc::new(Mutex::new(None));
+
+    client.add_event_handler_context(pending_verification);
+    client.add_event_handler_context(admin_user_id);
 
     client.add_event_handler(events::room_message::on_room_message);
+    client.add_event_handler_context(events::verification::on_device_key_verification_request);
+
+    let sync_settings = sync(&client, sync_token, session_file).await?;
 
     info!("Starting sync loop");
     client

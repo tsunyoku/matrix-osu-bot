@@ -1,10 +1,31 @@
-use matrix_sdk::{Room, RoomState};
+use matrix_sdk::{Client, Room, RoomState};
+use matrix_sdk::event_handler::Ctx;
+use matrix_sdk::ruma::OwnedUserId;
 use matrix_sdk::ruma::events::room::message::{MessageType, OriginalSyncRoomMessageEvent, RoomMessageEventContent};
-use tracing::{debug, info};
+use tracing::{debug, info, warn};
 use crate::error::Result;
+use crate::matrix::verification::{handle_verification_request, PendingVerification};
 
-pub(crate) async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: Room) -> Result<()> {
+pub(crate) async fn on_room_message(
+    event: OriginalSyncRoomMessageEvent,
+    room: Room,
+    client: Client,
+    Ctx(pending_verification): Ctx<PendingVerification>,
+    Ctx(admin_user_id): Ctx<OwnedUserId>,
+) -> Result<()> {
     if room.state() != RoomState::Joined {
+        return Ok(());
+    }
+
+    if let MessageType::VerificationRequest(_) = &event.content.msgtype {
+        let request = client
+            .encryption()
+            .get_verification_request(&event.sender, &event.event_id)
+            .await
+            .expect("Request object wasn't created");
+
+        tokio::spawn(handle_verification_request(request, client, admin_user_id, pending_verification));
+
         return Ok(());
     }
 
@@ -13,6 +34,24 @@ pub(crate) async fn on_room_message(event: OriginalSyncRoomMessageEvent, room: R
     };
 
     debug!(sender = %event.sender, body = %message_content.body, "Received text message");
+
+    if event.sender == admin_user_id {
+        let body = message_content.body.trim();
+
+        if body == "!sas yes" || body == "!sas no" {
+            if let Some(tx) = pending_verification.lock().unwrap().take() {
+                let confirmed = body == "!sas yes";
+
+                info!(confirmed, "Received verification response from admin");
+
+                if let Err(_) = tx.send(confirmed) {
+                    warn!("Sending SAS confirmation dropped");
+                }
+
+                return Ok(());
+            }
+        }
+    }
 
     if message_content.body.starts_with("!james") {
         info!(room_id = %room.room_id(), sender = %event.sender, "Responding to !james command");

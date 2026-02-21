@@ -11,6 +11,10 @@ pub(crate) struct MatrixSettings {
 
     pub username: String,
     pub password: String,
+
+    /// The Matrix user ID of the bot's admin (e.g. `@you:matrix.org`).
+    /// Verification requests and emoji confirmations are restricted to this user.
+    pub admin_user_id: String,
 }
 
 impl MatrixSettings {

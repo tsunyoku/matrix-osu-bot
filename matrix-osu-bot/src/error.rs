@@ -21,4 +21,7 @@ pub enum ApplicationError {
 
     #[error("failed on matrix operation")]
     MatrixError(#[from] matrix_sdk::Error),
+
+    #[error("invalid Matrix user ID")]
+    UserIdError(#[from] matrix_sdk::ruma::IdParseError),
 }
