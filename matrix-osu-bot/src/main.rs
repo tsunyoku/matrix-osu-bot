@@ -15,6 +15,7 @@ use crate::matrix::verification::PendingVerification;
 mod matrix;
 mod error;
 mod events;
+mod embed;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> ApplicationResult<()> {
