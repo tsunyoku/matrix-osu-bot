@@ -4,7 +4,7 @@ use matrix_sdk::{Client, ClientBuildError, LoopCtrl};
 use matrix_sdk::config::SyncSettings;
 use matrix_sdk::ruma::api::client::filter::FilterDefinition;
 use tokio::fs;
-use tracing::{error, info, warn};
+use tracing::{info, warn};
 use crate::error::Result;
 use crate::matrix::session::FullSession;
 use crate::matrix::settings::MatrixSettings;
