@@ -19,11 +19,6 @@ pub(crate) async fn handle_verification_request(
     admin_user_id: OwnedUserId,
     pending: PendingVerification,
 ) -> Result<()> {
-    if request.other_user_id() != admin_user_id {
-        warn!(sender = %request.other_user_id(), "Ignoring verification request from non-admin user");
-        return Ok(());
-    }
-
     request.accept().await?;
 
     let mut stream = request.changes();
