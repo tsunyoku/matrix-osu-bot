@@ -17,18 +17,6 @@ pub(crate) async fn on_room_message(
         return Ok(());
     }
 
-    if let MessageType::VerificationRequest(_) = &event.content.msgtype {
-        let request = client
-            .encryption()
-            .get_verification_request(&event.sender, &event.event_id)
-            .await
-            .expect("Request object wasn't created");
-
-        tokio::spawn(handle_verification_request(request, client, admin_user_id, pending_verification));
-
-        return Ok(());
-    }
-
     let MessageType::Text(message_content) = event.content.msgtype else {
         return Ok(());
     };
