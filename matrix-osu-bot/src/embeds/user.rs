@@ -29,7 +29,7 @@ pub(crate) fn create_user_embed(user: &UserExtended) -> RoomMessageEventContent 
         .unwrap_or(0).to_formatted_string(locale);
 
     EmbedBuilder::with_title(title)
-        .field("Accuracy", format!("{:.2}", accuracy))
+        .field("Accuracy", format!("{:.2}%", accuracy))
         .field("Playcount", format!("{} ({} hours)", play_count, play_time))
         .field("Peak rank", format!("#{}", peak_rank))
         .url(format!("https://osu.ppy.sh/users/{}", user.user_id))
