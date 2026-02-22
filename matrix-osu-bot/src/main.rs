@@ -17,8 +17,8 @@ use crate::settings::Settings;
 mod matrix;
 mod error;
 mod events;
-mod embed;
 mod settings;
+mod embeds;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> ApplicationResult<()> {
