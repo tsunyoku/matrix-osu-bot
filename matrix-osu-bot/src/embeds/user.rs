@@ -18,7 +18,7 @@ pub(crate) fn create_user_embed(user: &UserExtended) -> RoomMessageEventContent 
         statistics.map(|stats| stats.country_rank).flatten().unwrap_or(0).to_formatted_string(locale));
 
     let accuracy = statistics.map(|stats| stats.accuracy).unwrap_or(0.0);
-    let play_count = statistics.map(|stats| stats.playcount).unwrap_or(0);
+    let play_count = statistics.map(|stats| stats.playcount).unwrap_or(0).to_formatted_string(locale);
 
     let play_time_secs = statistics.map(|stats| stats.playtime as u64).unwrap_or(0);
     let play_time = (play_time_secs / 3600).to_formatted_string(locale);
@@ -26,7 +26,8 @@ pub(crate) fn create_user_embed(user: &UserExtended) -> RoomMessageEventContent 
     let peak_rank = user.highest_rank
         .as_ref()
         .map(|rank| rank.rank)
-        .unwrap_or(0).to_formatted_string(locale);
+        .unwrap_or(0)
+        .to_formatted_string(locale);
 
     EmbedBuilder::with_title(title)
         .field("Accuracy", format!("{:.2}%", accuracy))
