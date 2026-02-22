@@ -8,7 +8,7 @@ pub struct OsuClient {
 }
 
 impl OsuClient {
-    pub async fn new(client_id: u64, client_secret: String) -> OsuResult<Self> {
+    pub async fn new(client_id: u64, client_secret: &str) -> OsuResult<Self> {
         let rosu = Osu::new(client_id, client_secret).await?;
 
         Ok(Self {

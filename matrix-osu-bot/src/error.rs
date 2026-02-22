@@ -2,6 +2,7 @@ use matrix_sdk::ClientBuildError;
 use thiserror::Error;
 use tokio::io;
 use osu_lib::OsuError;
+use crate::commands::ArgError;
 
 pub type ApplicationResult<T, E = ApplicationError> = std::result::Result<T, E>;
 
@@ -30,4 +31,7 @@ pub enum ApplicationError {
 
     #[error("osu! error")]
     OsuError(#[from] OsuError),
+
+    #[error("command arg error")]
+    CommandArgError(#[from] ArgError),
 }

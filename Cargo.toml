@@ -1,10 +1,11 @@
 [workspace]
 resolver = "3"
-members = ["osu-lib", "matrix-osu-bot"]
+members = ["osu-lib", "matrix-osu-bot", "matrix-macros"]
 
 [workspace.dependencies]
 tokio = { version = "1.49.0", default-features = false, features = ["macros", "rt", "net", "fs"] }
 thiserror = "2.0.18"
+inventory = "0.3.22"
 
 [profile.release]
 lto = "thin"

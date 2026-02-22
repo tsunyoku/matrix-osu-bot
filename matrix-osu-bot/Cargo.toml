@@ -14,5 +14,7 @@ num-format = "0.4.4"
 
 tokio = { workspace = true }
 thiserror = { workspace = true }
+inventory = { workspace = true }
 
 osu-lib = { path = "../osu-lib" }
+matrix-macros = { path = "../matrix-macros" }

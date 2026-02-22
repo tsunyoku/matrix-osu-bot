@@ -8,6 +8,7 @@ use matrix_sdk::ruma::api::client::filter::FilterDefinition;
 use tokio::fs;
 use tracing::{info, warn};
 use osu_lib::osu_client::OsuClient;
+use crate::context::ContextContainer;
 use crate::error::ApplicationResult;
 use crate::matrix::session::FullSession;
 use crate::matrix::settings::MatrixSettings;
@@ -19,6 +20,8 @@ mod error;
 mod events;
 mod settings;
 mod embeds;
+mod commands;
+mod context;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> ApplicationResult<()> {
@@ -46,11 +49,14 @@ async fn main() -> ApplicationResult<()> {
     let pending_verification: PendingVerification = Arc::new(Mutex::new(None));
 
     let settings = Settings::new()?;
-    let osu_client = OsuClient::new(settings.osu_client_id, settings.osu_client_secret).await?;
+    let osu_client = OsuClient::new(settings.osu_client_id, &settings.osu_client_secret).await?;
 
-    client.add_event_handler_context(pending_verification);
-    client.add_event_handler_context(admin_user_id);
-    client.add_event_handler_context(osu_client);
+    ContextContainer::new(&client)
+        .add(pending_verification)
+        .add(admin_user_id)
+        .add(osu_client)
+        .add(settings)
+        .finalise();
 
     client.add_event_handler(events::room_message::on_room_message);
     client.add_event_handler(events::verification::on_device_key_verification_request);

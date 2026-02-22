@@ -1,19 +1,17 @@
-use matrix_sdk::{Room, RoomState};
+use matrix_sdk::{Client, Room, RoomState};
 use matrix_sdk::event_handler::Ctx;
-use matrix_sdk::ruma::OwnedUserId;
 use matrix_sdk::ruma::events::room::message::{MessageType, OriginalSyncRoomMessageEvent};
-use tracing::{debug, info, warn};
-use osu_lib::osu_client::OsuClient;
-use crate::embeds;
+use tracing::debug;
+use crate::commands::{Command, CommandContext, CommandData};
 use crate::error::ApplicationResult;
-use crate::matrix::verification::PendingVerification;
+use crate::settings::Settings;
 
 pub(crate) async fn on_room_message(
     event: OriginalSyncRoomMessageEvent,
     room: Room,
-    Ctx(osu_client): Ctx<OsuClient>,
-    Ctx(pending_verification): Ctx<PendingVerification>,
-    Ctx(admin_user_id): Ctx<OwnedUserId>,
+    client: Client,
+    Ctx(command_data): Ctx<CommandData>,
+    Ctx(settings): Ctx<Settings>,
 ) -> ApplicationResult<()> {
     if room.state() != RoomState::Joined {
         return Ok(());
@@ -25,33 +23,40 @@ pub(crate) async fn on_room_message(
 
     debug!(sender = %event.sender, body = %message_content.body, "Received text message");
 
-    if event.sender == admin_user_id {
-        let body = message_content.body.trim();
+    let command_context = CommandContext {
+        client,
+        room,
+        sender: event.sender,
+        data: command_data,
+    };
 
-        if body == "!sas yes" || body == "!sas no" {
-            if let Some(tx) = pending_verification.lock().unwrap().take() {
-                let confirmed = body == "!sas yes";
+    let body = message_content.body.trim();
 
-                info!(confirmed, "Received verification response from admin");
+    dispatch(&settings.command_prefix, body, command_context).await?;
 
-                if let Err(_) = tx.send(confirmed) {
-                    warn!("Sending SAS confirmation dropped");
-                }
+    Ok(())
+}
 
-                return Ok(());
-            }
+async fn dispatch(prefix: &str, body: &str, ctx: CommandContext) -> ApplicationResult<bool> {
+    let body = body.trim();
+
+    if !body.starts_with(prefix) {
+        return Ok(false);
+    }
+
+    let mut parts = body[prefix.len()..].split_whitespace();
+
+    let first = parts.next().unwrap_or("");
+    let rest: Vec<String> = parts.map(str::to_owned).collect();
+
+    for cmd in inventory::iter::<Command> {
+        let matched = cmd.name == first;
+
+        if matched {
+            (cmd.handler)(ctx, rest).await?;
+            return Ok(true);
         }
     }
 
-    if message_content.body.starts_with("!james") {
-        info!(room_id = %room.room_id(), sender = %event.sender, "Responding to !james command");
-
-        let user = osu_client.user("tsunyoku").await?;
-        let embed = embeds::user::create_user_embed(&user);
-
-        room.send(embed)
-            .await?;
-    }
-
-    Ok(())
+    Ok(false)
 }
