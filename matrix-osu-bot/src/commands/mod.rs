@@ -1,5 +1,6 @@
 mod james;
 mod sas;
+mod user;
 
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
